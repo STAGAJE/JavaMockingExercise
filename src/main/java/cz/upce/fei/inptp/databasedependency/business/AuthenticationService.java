@@ -1,13 +1,10 @@
 package cz.upce.fei.inptp.databasedependency.business;
 
+import cz.upce.fei.inptp.databasedependency.dao.DAO;
 import cz.upce.fei.inptp.databasedependency.dao.PersonDAO;
 import cz.upce.fei.inptp.databasedependency.entity.Person;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Authentication service - used for authentication of users stored in db.
@@ -15,37 +12,31 @@ import java.util.logging.Logger;
  */
 public class AuthenticationService {
 
-    private PersonDAO persondao;
+    private final DAO<Person> personDAO;
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthenticationService() {
-        this.persondao = new PersonDAO();
+    public AuthenticationService(DAO<Person> personDAO) {
+        if (personDAO == null) {
+            this.personDAO = new PersonDAO();
+        } else {
+            this.personDAO = personDAO;
+        }
     }
 
-    // TODO: add tests
-    // TODO: Authenticate("user", "pass") - Person("user", encryptPwd("pass")) - pass
-    // TODO: Authenticate("user", "invalid") - Person("user", encryptPwd("pass")) - fail
-    // TODO: Authenticate("user", "pass") - nonexistent person - fail
-    public boolean Authenticate(String login, String password) {
-        Person person = persondao.load("name = '" + login + "'");
+    public boolean authenticate(String login, String password) {
+        Person person = personDAO.load("name = '" + login + "'");
         if (person == null) {
             return false;
         }
-
-        return person.getPassword().equals(encryptPassword(password));
+        return checkPassword(password, person.getPassword());
     }
 
-    // TODO: (low priority) - change to safe password hash function (PBKDF2, bcrypt, scrypt)
     public static String encryptPassword(String password) {
-        try {
-            MessageDigest crypt = MessageDigest.getInstance("SHA-1");
-            crypt.reset();
-            crypt.update(password.getBytes("UTF-8"));
+        return passwordEncoder.encode(password);
+    }
 
-            return new BigInteger(1, crypt.digest()).toString(16);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            Logger.getLogger(AuthenticationService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+    public static boolean checkPassword(String rawPassword, String hashedPassword) {
+        return passwordEncoder.matches(rawPassword, hashedPassword);
     }
 
 }

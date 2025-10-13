@@ -12,12 +12,21 @@ import cz.upce.fei.inptp.databasedependency.entity.Role;
  */
 public class AuthorizationService {
 
-    private PersonDAO persondao;
-    private PersonRolesDAO personRolesDao;
+    private final PersonDAO personDAO;
+    private final PersonRolesDAO personRolesDAO;
 
-    public AuthorizationService() {
-        this.persondao = new PersonDAO();
-        this.personRolesDao = new PersonRolesDAO();
+    public AuthorizationService(PersonDAO personDAO, PersonRolesDAO personRolesDAO) {
+        if (personDAO == null) {
+            this.personDAO = new PersonDAO();
+        } else {
+            this.personDAO = personDAO;
+        }
+
+        if (personDAO == null) {
+            this.personRolesDAO = new PersonRolesDAO();
+        } else {
+            this.personRolesDAO = personRolesDAO;
+        }
     }
 
     // TODO: add tests
@@ -30,10 +39,10 @@ public class AuthorizationService {
     // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section/subsection", admin)]) - pass
     // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section", admin)]) - pass
     // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/", admin)]) - pass
-    public boolean Authorize(Person person, String section, AccessOperationType operationType) {
-        String roleWhere = persondao.getRoleWhereStringFor(person);
+    public boolean authorize(Person person, String section, AccessOperationType operationType) {
+        String roleWhere = personDAO.getRoleWhereStringFor(person);
 
-        PersonRole roles = personRolesDao.load(roleWhere);
+        PersonRole roles = personRolesDAO.load(roleWhere);
         if (roles == null) {
             return false;
         }
