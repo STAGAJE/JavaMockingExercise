@@ -10,37 +10,40 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AuthenticationServiceTest {
 
-    private DAO<Person> personDao;
+    private DAO<Person> personDaoMock;
     private AuthenticationService authService;
 
     @BeforeEach
     void setUp() {
-        personDao = Mockito.mock();
-        authService = new AuthenticationService(personDao);
+        personDaoMock = Mockito.mock();
+        authService = new AuthenticationService(personDaoMock);
     }
 
     @Test
     void authenticate_shouldReturnTrue_whenCredentialsMatch() {
         String hashed = AuthenticationService.encryptPassword("secret");
         Person person = new Person(1, "user", hashed);
-        when(personDao.load("name = 'user'")).thenReturn(person);
+        when(personDaoMock.load("name = 'user'")).thenReturn(person);
 
         assertTrue(authService.authenticate("user", "secret"));
+        verify(personDaoMock, times(1)).load(any());
     }
 
     @Test
     void authenticate_shouldReturnFalse_whenPasswordInvalid() {
         String hashed = AuthenticationService.encryptPassword("correct");
         Person person = new Person(1, "user", hashed);
-        when(personDao.load("name = 'user'")).thenReturn(person);
+        when(personDaoMock.load("name = 'user'")).thenReturn(person);
 
         assertFalse(authService.authenticate("user", "wrong"));
+        verify(personDaoMock, times(1)).load(any());
     }
 
     @Test
     void authenticate_shouldReturnFalse_whenUserNotFound() {
-        when(personDao.load("name = 'user'")).thenReturn(null);
+        when(personDaoMock.load("name = 'user'")).thenReturn(null);
 
         assertFalse(authService.authenticate("user", "anything"));
+        verify(personDaoMock, times(1)).load(any());
     }
 }
