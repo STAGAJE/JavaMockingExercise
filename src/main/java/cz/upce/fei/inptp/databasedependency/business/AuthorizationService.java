@@ -16,29 +16,10 @@ public class AuthorizationService {
     private final PersonRolesDAO personRolesDAO;
 
     public AuthorizationService(PersonDAO personDAO, PersonRolesDAO personRolesDAO) {
-        if (personDAO == null) {
-            this.personDAO = new PersonDAO();
-        } else {
-            this.personDAO = personDAO;
-        }
-
-        if (personDAO == null) {
-            this.personRolesDAO = new PersonRolesDAO();
-        } else {
-            this.personRolesDAO = personRolesDAO;
-        }
+        this.personDAO = (personDAO != null) ? personDAO : new PersonDAO();
+        this.personRolesDAO = (personRolesDAO != null) ? personRolesDAO : new PersonRolesDAO();
     }
 
-    // TODO: add tests
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section/subsection", rw)]) - pass
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section/subsection", ro)]) - fail
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section", rw)]) - pass
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section", ro)]) - fail
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/", rw)]) - pass
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/", ro)]) - fail
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section/subsection", admin)]) - pass
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/section", admin)]) - pass
-    // TODO: Authorize(person, "/section/subsection", rw) - PersonRole([Role("/", admin)]) - pass
     public boolean authorize(Person person, String section, AccessOperationType operationType) {
         String roleWhere = personDAO.getRoleWhereStringFor(person);
 
@@ -69,18 +50,13 @@ public class AuthorizationService {
         return false;
     }
 
-    // TODO: add tests
-    // TODO: "/section/subsection/subsubsection" -> "/section/subsection"
-    // TODO: "/section/subsection" -> "/section"
-    // TODO: "/section" -> "/"
-    // TODO: "/" -> ""
     private String getUpperLever(String section) {
         if (section.equals("/")) {
             return "";
         }
 
         String ret = section.substring(0, section.lastIndexOf("/") + 1);
-        return ret.substring(0, ret.length() - 1);
+        return (ret.length() > 1) ? ret.substring(0, ret.length() - 1) : ret;
     }
 
 }

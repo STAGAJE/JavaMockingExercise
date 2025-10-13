@@ -16,11 +16,7 @@ public class AuthenticationService {
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthenticationService(DAO<Person> personDAO) {
-        if (personDAO == null) {
-            this.personDAO = new PersonDAO();
-        } else {
-            this.personDAO = personDAO;
-        }
+        this.personDAO = (personDAO != null) ? personDAO : new PersonDAO();
     }
 
     public boolean authenticate(String login, String password) {
