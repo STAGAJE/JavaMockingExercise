@@ -19,10 +19,14 @@ public class UserManagerService {
     }
 
     public boolean deleteUser(Person person) {
-        return personDao.delete(person);
+        return person != null && personDao.delete(person);
     }
 
     public boolean changePassword(Person person, String newPassword) {
+        if (person == null) {
+            return false;
+        }
+
         person.setPassword(AuthenticationService.encryptPassword(newPassword));
         return personDao.save(person);
     }

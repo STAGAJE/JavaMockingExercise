@@ -19,6 +19,10 @@ public class UserRoleManagerService {
     }
 
     public boolean assignOrAppendRole(Person person, Role role) {
+        if (person == null) {
+            return false;
+        }
+
         PersonRole existing = personRoleDao.load("id = " + person.getId());
 
         if (existing == null) {
@@ -33,21 +37,33 @@ public class UserRoleManagerService {
     }
 
     public boolean removeRoleIfExists(Person person, Role role) {
+        if (person == null) {
+            return false;
+        }
+
         PersonRole existing = personRoleDao.load("id = " + person.getId());
         return existing != null && existing.getRoles().remove(role) && personRoleDao.save(existing);
     }
 
     public PersonRole getRoles(Person person) {
+        if (person == null) {
+            return null;
+        }
+
         return personRoleDao.load("id = " + person.getId());
     }
 
     public boolean clearRoles(Person person) {
+        if (person == null) {
+            return false;
+        }
+
         PersonRole personRole = personRoleDao.load("id = " + person.getId());
         if (personRole == null) {
             return false;
         }
 
         personRole.getRoles().clear();
-        return personRoleDao.save(personRole);
+        return personRoleDao.delete(personRole);
     }
 }
