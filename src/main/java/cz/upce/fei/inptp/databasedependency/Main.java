@@ -11,6 +11,9 @@ import cz.upce.fei.inptp.databasedependency.entity.Person;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import cz.upce.fei.inptp.databasedependency.guice.AppModule;
 
 /**
  *
@@ -30,31 +33,35 @@ public class Main {
       - ...
     */
     public static void main(String[] args) throws SQLException {
-        Database database = new Database();
+        Injector injector = Guice.createInjector(new AppModule());
+
+        Database database = injector.getInstance(Database.class);
         database.open();
 
-        PersonDAO personDao = new PersonDAO();
+        PersonDAO personDAO = injector.getInstance(PersonDAO.class);
+        PersonRolesDAO personRolesDAO = injector.getInstance(PersonRolesDAO.class);
+
         
         // create person
         Person person = new Person(10, "Peter", AuthenticationService.encryptPassword("rafanovsky"));
-        personDao.save(person);
+        personDAO.save(person);
 
         // load person
-        person = personDao.load("id = 10");
+        person = personDAO.load("id = 10");
         System.out.println(person);
 
         // test authentication
-        AuthenticationService authentication = new AuthenticationService(new PersonDAO());
+        AuthenticationService authentication = injector.getInstance(AuthenticationService.class);
         System.out.println(authentication.authenticate("Peter", "rafa"));
         System.out.println(authentication.authenticate("Peter", "rafanovsky"));
 
         // check user roles
-        PersonRole pr = new PersonRolesDAO().load("name = 'yui'");
+        PersonRole pr = personRolesDAO.load("name = 'yui'");
         System.out.println(pr);
 
         // test authorization
-        person = personDao.load("id = 2");
-        AuthorizationService authorization = new AuthorizationService(new PersonDAO(), new PersonRolesDAO());
+        person = personDAO.load("id = 2");
+        AuthorizationService authorization = injector.getInstance(AuthorizationService.class);
         boolean authorizationResult = authorization.authorize(person, "/finance/report", AccessOperationType.Read);
         System.out.println(authorizationResult);
         

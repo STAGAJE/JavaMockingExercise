@@ -1,5 +1,6 @@
 package cz.upce.fei.inptp.databasedependency.business;
 
+import com.google.inject.Inject;
 import cz.upce.fei.inptp.databasedependency.dao.PersonRolesDAO;
 import cz.upce.fei.inptp.databasedependency.dao.PersonDAO;
 import cz.upce.fei.inptp.databasedependency.entity.PersonRole;
@@ -15,9 +16,10 @@ public class AuthorizationService {
     private final PersonDAO personDAO;
     private final PersonRolesDAO personRolesDAO;
 
+    @Inject
     public AuthorizationService(PersonDAO personDAO, PersonRolesDAO personRolesDAO) {
-        this.personDAO = (personDAO != null) ? personDAO : new PersonDAO();
-        this.personRolesDAO = (personRolesDAO != null) ? personRolesDAO : new PersonRolesDAO();
+        this.personDAO = personDAO;
+        this.personRolesDAO = personRolesDAO;
     }
 
     public boolean authorize(Person person, String section, AccessOperationType operationType) {
@@ -35,17 +37,13 @@ public class AuthorizationService {
                         return true;
                     }
 
-                    if (role.getAccess().equals("admin")) {
-                        return true;
-                    }
-
-                    return false;
+                    return role.getAccess().equals("admin");
                 }
             }
 
             section = getUpperLever(section);
             //System.out.println("newsection " + section);
-        } while (!section.equals(""));
+        } while (!section.isEmpty());
 
         return false;
     }

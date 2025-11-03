@@ -15,16 +15,7 @@ import java.util.logging.Logger;
  */
 public class Database {
 
-    private static Database instance;
     private Connection connection;
-
-    public Database() {
-        instance = this;
-    }
-
-    public static Database getInstance() {
-        return instance;
-    }
 
     public void open() {
         try {
@@ -33,6 +24,10 @@ public class Database {
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     private void seedDatabase() throws SQLException {

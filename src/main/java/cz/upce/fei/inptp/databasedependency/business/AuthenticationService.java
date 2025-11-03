@@ -1,5 +1,6 @@
 package cz.upce.fei.inptp.databasedependency.business;
 
+import com.google.inject.Inject;
 import cz.upce.fei.inptp.databasedependency.dao.DAO;
 import cz.upce.fei.inptp.databasedependency.dao.PersonDAO;
 import cz.upce.fei.inptp.databasedependency.entity.Person;
@@ -15,8 +16,9 @@ public class AuthenticationService {
     private final DAO<Person> personDAO;
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @Inject
     public AuthenticationService(DAO<Person> personDAO) {
-        this.personDAO = (personDAO != null) ? personDAO : new PersonDAO();
+        this.personDAO = personDAO;
     }
 
     public boolean authenticate(String login, String password) {
