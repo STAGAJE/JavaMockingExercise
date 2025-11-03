@@ -6,7 +6,8 @@ package cz.upce.fei.inptp.databasedependency.dao;
  */
 public interface DAO<T> {
 
-    public void save(T object);
+    public boolean save(T object);
     public T load(String parameters);
+    public boolean delete(T object);
     
 }

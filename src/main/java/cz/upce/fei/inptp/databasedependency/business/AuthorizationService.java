@@ -42,7 +42,6 @@ public class AuthorizationService {
             }
 
             section = getUpperLever(section);
-            //System.out.println("newsection " + section);
         } while (!section.isEmpty());
 
         return false;

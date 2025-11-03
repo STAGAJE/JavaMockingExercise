@@ -26,15 +26,18 @@ public class PersonRolesDAO implements DAO<PersonRole> {
     }
 
     @Override
-    public void save(PersonRole object) {
+    public boolean save(PersonRole object) {
         try (Statement st = database.createStatement()) {
             st.execute("delete from role where id = " + object.getPerson().getId());
 
             for (Role role : object.getRoles()) {
                 st.execute("insert into role values (" + object.getPerson().getId() + ", '" + role.getSection() + "', '" + role.getAccess() + "', '" + role.getModifier() + "')");
             }
+
+            return true;
         } catch (SQLException ex) {
             Logger.getLogger(PersonDAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
     }
 
@@ -63,6 +66,17 @@ public class PersonRolesDAO implements DAO<PersonRole> {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean delete(PersonRole object) {
+        try (Statement st = database.createStatement()) {
+            st.execute("delete from role where id = " + object.getPerson().getId());
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(PersonDAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
 }
